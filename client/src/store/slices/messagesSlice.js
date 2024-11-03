@@ -15,18 +15,6 @@ export const getMessagesThunk = createAsyncThunk(
   }
 );
 
-export const createMessageThunk = createAsyncThunk(
-  `${MESSAGES_SLICE_NAME}/create`,
-  async (payload, thunkAPI) => {
-    try {
-      const response = await API.createMessage(payload);
-      return response.data.data;
-    } catch (err) {
-      return thunkAPI.rejectWithValue({ message: err.message });
-    }
-  }
-);
-
 const initialState = {
   messages: [],
   isFetching: false,
@@ -37,6 +25,24 @@ const initialState = {
 const messagesSlice = createSlice({
   name: MESSAGES_SLICE_NAME,
   initialState,
+  reducers: {
+    newMessagePending (state) {
+      state.isFetching = true;
+      state.error = null;
+    },
+    newMessageSuccess (state, { payload }) {
+      state.isFetching = false;
+      if (state.messages.length >= state.limit) {
+        state.messages.splice(0, 1);
+      }
+      state.messages.push(payload);
+      // state.error = null;
+    },
+    newMessageError (state, { payload }) {
+      state.isFetching = false;
+      state.error = payload;
+    },
+  },
   extraReducers: builder => {
     // GET
     builder.addCase(getMessagesThunk.pending, state => {
@@ -52,24 +58,11 @@ const messagesSlice = createSlice({
       state.isFetching = false;
       state.error = payload;
     });
-    // CREATE
-    builder.addCase(createMessageThunk.pending, state => {
-      state.isFetching = true;
-      state.error = null;
-    });
-    builder.addCase(createMessageThunk.fulfilled, (state, { payload }) => {
-      state.isFetching = false;
-      if (state.messages.length >= state.limit) {
-        state.messages.splice(0, 1);
-      }
-      state.messages.push(payload);
-    });
-    builder.addCase(createMessageThunk.rejected, (state, { payload }) => {
-      state.isFetching = false;
-      state.error = payload;
-    });
   },
 });
 
-const { reducer } = messagesSlice;
+const { reducer, actions } = messagesSlice;
+export const { newMessagePending, newMessageSuccess, newMessageError } =
+  actions;
+
 export default reducer;
