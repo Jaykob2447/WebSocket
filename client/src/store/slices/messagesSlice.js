@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import * as API from '../../api';
+import { http } from '../../api';
 
 const MESSAGES_SLICE_NAME = 'messages';
 
@@ -7,7 +7,7 @@ export const getMessagesThunk = createAsyncThunk(
   `${MESSAGES_SLICE_NAME}/get`,
   async (payload, thunkAPI) => {
     try {
-      const response = await API.getMessages(payload);
+      const response = await http.getMessages(payload);
       return response.data.data;
     } catch (err) {
       return thunkAPI.rejectWithValue({ message: err.message });
