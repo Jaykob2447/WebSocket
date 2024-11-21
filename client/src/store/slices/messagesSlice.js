@@ -1,7 +1,7 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { http } from '../../api';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { http } from "../../api";
 
-const MESSAGES_SLICE_NAME = 'messages';
+const MESSAGES_SLICE_NAME = "messages";
 
 export const getMessagesThunk = createAsyncThunk(
   `${MESSAGES_SLICE_NAME}/get`,
@@ -26,11 +26,11 @@ const messagesSlice = createSlice({
   name: MESSAGES_SLICE_NAME,
   initialState,
   reducers: {
-    newMessagePending (state) {
+    newMessagePending(state) {
       state.isFetching = true;
       state.error = null;
     },
-    newMessageSuccess (state, { payload }) {
+    newMessageSuccess(state, { payload }) {
       state.isFetching = false;
       if (state.messages.length >= state.limit) {
         state.messages.splice(0, 1);
@@ -38,14 +38,21 @@ const messagesSlice = createSlice({
       state.messages.push(payload);
       // state.error = null;
     },
-    newMessageError (state, { payload }) {
+    newMessageError(state, { payload }) {
       state.isFetching = false;
       state.error = payload;
     },
+    deleteMessage(state, { payload }) {
+      try {
+        state.messages.pop(payload);
+      } catch (err) {
+        console.log(err);
+      }
+    },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     // GET
-    builder.addCase(getMessagesThunk.pending, state => {
+    builder.addCase(getMessagesThunk.pending, (state) => {
       state.isFetching = true;
       state.error = null;
     });
@@ -62,7 +69,11 @@ const messagesSlice = createSlice({
 });
 
 const { reducer, actions } = messagesSlice;
-export const { newMessagePending, newMessageSuccess, newMessageError } =
-  actions;
+export const {
+  newMessagePending,
+  newMessageSuccess,
+  newMessageError,
+  deleteMessage,
+} = actions;
 
 export default reducer;
